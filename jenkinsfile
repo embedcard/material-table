@@ -1,0 +1,34 @@
+pipeline {
+    options { disableConcurrentBuilds() }
+    agent any
+    stages {
+        stage ("material table") {// group the sub stages to run on same agent
+            stages {
+                stage("clean up") {
+                    steps {
+                       sh 'rm -rf node_modules'
+                       sh 'git clean -dfx'
+                    }
+                }
+                stage("install packages") {
+                    steps {
+                        sh 'yarn'
+                    }
+                }
+                stage("build") {
+                    steps {
+                        sh 'yarn build'
+                    }
+                }
+                stage("publish") {
+                    when {
+                        branch 'helix_version'
+                    }
+                    steps {
+                        sh 'yarn publish --non-interactive'
+                    }
+                }
+            }
+        }
+    }
+}
